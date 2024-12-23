@@ -20,11 +20,13 @@ class LogCostMiddleware(MiddlewareMixin):
         self.white_list = ['/acg/login/',
                            '/acg/register/',
                            '/acg/post/',
+                            '/acg/topic/',
                            ]
         # 使用正则表达式匹配动态路径
         self.white_list_patterns = [
             # 匹配动态路径 '/acg/post/<int:pk>/
             re.compile(r'^/acg/post/\d+/'),
+            re.compile(r'^/acg/topic/\d+/'),
         ]
 
     def process_view(self, request, view_func, *view_args, **view_kwargs):

@@ -1,13 +1,14 @@
 from django.core.serializers import serialize
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import LoginSerializer,UserProfileSerializer,RegisterSerializer,PostSerializer,FollowSerializer
+from .serializers import LoginSerializer,UserProfileSerializer,RegisterSerializer,PostSerializer,FollowSerializer,TopicSerializer
 from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
 from rest_framework import status,generics
-from .models import UserProfile,Post,Follow
+from .models import UserProfile,Post,Follow,Topic
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
 
 # Create your views here.
 
@@ -51,7 +52,7 @@ class UserProfileView(APIView):
     def get(self,request):
         user_profile = UserProfile.objects.get(userid=request.user)
         return Response(UserProfileSerializer(user_profile).data,status=status.HTTP_200_OK)
-    #更新用户信息
+    #更新用户信息 ,接口通用
     def put(self,request):
         user_profile = UserProfile.objects.get(userid=request.user)
         serializer = UserProfileSerializer(user_profile,data=request.data,partial=True)
@@ -77,9 +78,42 @@ class PostView(APIView):
             serializer = PostSerializer(post)
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
-            posts = Post.objects.all()
+            #先判断是否有search关键字
+            search_query = request.query_params.get('search', None)
+            if search_query:
+                #从动态标题和动态内容中搜索
+                posts = Post.objects.filter(
+                    Q(posttitle__icontains=search_query) |
+                    Q(postcontent__icontains=search_query)
+                )
+            else:
+                posts = Post.objects.all()
             serializer = PostSerializer(posts, many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
+    def post(self,request):
+        pass
+
+class TopicView(APIView):
+    def get_object(self,pk):
+        try:
+            return Topic.objects.get(pk=pk)
+        except Topic.DoesNotExist:
+            return None
+
+    def get(self, request, pk=None):
+        if pk:
+            topic = self.get_object(pk)
+            #如果topic不存在
+            if topic is None:
+                return Response({'message':'话题不存在'},status=status.HTTP_404_NOT_FOUND)
+            serializer = TopicSerializer(topic)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        else:
+            topics = Topic.objects.all()
+            serializer = TopicSerializer(topics, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+
+
 
 #这是需要token的接口测试例子
 class TestView(APIView):

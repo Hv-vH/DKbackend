@@ -129,6 +129,7 @@ class LikeComment(models.Model):
     class Meta:
         #联合唯一键
         unique_together = ('liker','comment')
+        
 #定义关注模型
 class Follow(models.Model):
     follower = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
@@ -141,4 +142,28 @@ class Follow(models.Model):
         return f"{self.follower.username} follows {self.followed.username}"
 
 
+class Topic(models.Model):
+    #话题标题
+    topictitle = models.CharField(max_length=50)
+    #话题下的tag
+    topictags = models.TextField()
+    #话题描述
+    topicdescription = models.TextField()
 
+class Activity(models.Model):
+    #活动标题
+    activitytitle = models.CharField(max_length=50)
+    #活动封面图
+    activitycoverimage = models.TextField()
+    #活动内容
+    activitycontent = models.TextField()
+    #活动发布时间
+    activitypublish_time = models.DateTimeField(auto_now_add=True)
+    #活动开始时间
+    activitystart_time = models.DateTimeField()
+    #活动结束时间
+    activityend_time = models.DateTimeField()
+    #活动组织者
+    activityorganizer = models.CharField(max_length=50)
+    #联系方式
+    activitycontract = models.CharField(max_length=50)
