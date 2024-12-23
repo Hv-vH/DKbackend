@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile,Post,LikePost,CollectPost,Article
+from .models import UserProfile,Post,LikePost,CollectPost,Article,Follow
 
 #创建登录序列化器
 class LoginSerializer(serializers.Serializer):
@@ -86,4 +86,8 @@ class PostSerializer(serializers.ModelSerializer):
     def get_collect_count(self,obj):
         return CollectPost.objects.filter(post=obj).count()
 
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ['follower', 'followed']
 

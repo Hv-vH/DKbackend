@@ -1,12 +1,12 @@
 from django.core.serializers import serialize
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import LoginSerializer,UserProfileSerializer,RegisterSerializer,PostSerializer
+from .serializers import LoginSerializer,UserProfileSerializer,RegisterSerializer,PostSerializer,FollowSerializer
 from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
-from rest_framework import status
-from .models import UserProfile,Post
+from rest_framework import status,generics
+from .models import UserProfile,Post,Follow
 from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
@@ -87,3 +87,26 @@ class TestView(APIView):
         return Response({'message':'成功'},status=status.HTTP_200_OK)
 
 
+
+# 获取关注列表
+class FollowListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FollowSerializer
+
+    def get_queryset(self):
+        return Follow.objects.filter(follower=self.request.user)
+
+# 关注用户
+class FollowUserView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FollowSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(follower=self.request.user)
+
+# 取消关注
+class UnfollowUserView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Follow.objects.filter(follower=self.request.user)
