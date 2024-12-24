@@ -2,22 +2,19 @@ from django.core.serializers import serialize
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .serializers import (LoginSerializer,UserProfileSerializer,RegisterSerializer,
-                          PostSerializer,FollowSerializer,TopicSerializer,CommentSerializer,MessageSerializer)
+                          PostSerializer,FollowSerializer,TopicSerializer,CommentSerializer,
+                          MessageSerializer)
 from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
 from rest_framework import status,generics
 from .models import UserProfile,Post,Follow,Topic,Comment,Message
 from rest_framework.permissions import IsAuthenticated
-<<<<<<< HEAD
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-=======
 from django.core.paginator import Paginator
 from django.db.models import Q
-
->>>>>>> b40e5caf891bffb9fe8083ff6b4231a81d535c0a
 # Create your views here.
 
 #这是登录视图
@@ -239,13 +236,11 @@ class FollowUserView(APIView):
  # 创建关注关系 follow, created = Follow.objects.get_or_create(follower=request.user, followed=followed_user)
 
 # 取消关注
-<<<<<<< HEAD
 class UnfollowUserView(APIView):
     def delete(self, request, user_id):
         follow = get_object_or_404(Follow, follower=request.user, followed_id=user_id)
         follow.delete()
         return Response({'message': 'Successfully unfollowed.'}, status=status.HTTP_204_NO_CONTENT)
-=======
 class UnfollowUserView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -272,4 +267,3 @@ class CommentView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
->>>>>>> b40e5caf891bffb9fe8083ff6b4231a81d535c0a

@@ -1,12 +1,10 @@
 from django.urls import path
-from django.views.generic import RedirectView
 from .views import (LoginView,RegisterView,TestView,UserProfileView,PostView,
                     FollowListView, FollowUserView, UnfollowUserView,TopicView,
                     CommentView,MessageView, UnreadMessageCountView)
 
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='login/', permanent=False)),
     path('login/',LoginView.as_view(),name='login'),
     path('register/',RegisterView.as_view(),name='register'),
     path('profile/',UserProfileView.as_view(),name='profile'),
