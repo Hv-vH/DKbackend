@@ -8,7 +8,7 @@ class UserProfile(models.Model):
     userid = models.OneToOneField(User, on_delete=models.CASCADE)
     #昵称,不能为空，数据库不能为空，前端可以不传，默认为100+默认8位随机数
     nickname = models.CharField(max_length=20,null=False,blank=True,default='用户100'+str(random.randint(10000000,99999999)))
-    #头像文件，存放前端，这里是相对路径,数据库不能为空，前端可以不传 默认为‘avatars/avatar.jpg’
+    #头像文件，存放前端，这里是相对路径,数据库不能为空，前端可以不传 默认为'avatars/avatar.jpg'
     avatar = models.TextField(null=False,blank=True,default='avatars/avatar.jpg')
     #个性描述，可以为空
     description = models.TextField(blank=True)
@@ -129,6 +129,31 @@ class LikeComment(models.Model):
     class Meta:
         #联合唯一键
         unique_together = ('liker','comment')
+
+class Message(models.Model):
+    MESSAGE_TYPES = (
+        ('system', '系统消息'),
+        ('activity', '活动消息'),
+        ('comment', '评论消息'),
+        ('like', '点赞消息')
+    )
+    
+    # 发送者id,外键关联到UserProfile表
+    sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sent_messages')
+    # 接收者id,外键关联到UserProfile表
+    receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='received_messages')
+    # 消息标题
+    title = models.CharField(max_length=50)
+    # 消息内容
+    content = models.TextField()
+    # 消息类型
+    type = models.CharField(max_length=10, choices=MESSAGE_TYPES)
+    # 消息创建时间
+    created_time = models.DateTimeField(auto_now_add=True)
+    # 是否已读
+    is_read = models.BooleanField(default=False)
+    # 额外数据(JSON格式)
+    metadata = models.JSONField(null=True, blank=True)
 
 
 

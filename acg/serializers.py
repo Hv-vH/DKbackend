@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile,Post,LikePost,CollectPost,Article
+from .models import UserProfile,Post,LikePost,CollectPost,Article, Message
 
 #创建登录序列化器
 class LoginSerializer(serializers.Serializer):
@@ -87,3 +87,18 @@ class PostSerializer(serializers.ModelSerializer):
         return CollectPost.objects.filter(post=obj).count()
 
 
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.SerializerMethodField()
+    createTime = serializers.DateTimeField(source='created_time', format='%Y-%m-%dT%H:%M:%SZ')
+    isRead = serializers.BooleanField(source='is_read')
+    
+    class Meta:
+        model = Message
+        fields = ['id', 'type', 'title', 'content', 'sender', 'createTime', 'isRead', 'metadata']
+        
+    def get_sender(self, obj):
+        return {
+            'id': obj.sender.id,
+            'username': obj.sender.nickname,
+            'avatar': obj.sender.avatar
+        }

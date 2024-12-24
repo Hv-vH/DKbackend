@@ -1,13 +1,15 @@
 from django.core.serializers import serialize
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import LoginSerializer,UserProfileSerializer,RegisterSerializer,PostSerializer
+from .serializers import LoginSerializer,UserProfileSerializer,RegisterSerializer,PostSerializer,MessageSerializer
 from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
 from rest_framework import status
-from .models import UserProfile,Post
+from .models import UserProfile,Post,Message
 from rest_framework.permissions import IsAuthenticated
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 # Create your views here.
 
@@ -85,5 +87,88 @@ class PostView(APIView):
 class TestView(APIView):
     def post(self,request):
         return Response({'message':'成功'},status=status.HTTP_200_OK)
+
+class MessageView(APIView):
+    def get(self, request, pk=None):
+        if pk:
+            # 获取单个消息详情
+            try:
+                message = Message.objects.get(
+                    pk=pk,
+                    receiver=request.user.userprofile
+                )
+                serializer = MessageSerializer(message)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Message.DoesNotExist:
+                return Response({'message': '消息不存在'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # 获取消息列表
+        page = int(request.query_params.get('page', 1))
+        size = int(request.query_params.get('size', 10))
+        message_type = request.query_params.get('type')
+        
+        messages = Message.objects.filter(receiver=request.user.userprofile)
+        if message_type:
+            messages = messages.filter(type=message_type)
+            
+        paginator = Paginator(messages, size)
+        messages = paginator.get_page(page)
+        
+        serializer = MessageSerializer(messages, many=True)
+        return Response({
+            'total': paginator.count,
+            'items': serializer.data
+        }, status=status.HTTP_200_OK)
+        
+    def put(self, request, pk=None):
+        if not pk:
+            # 批量标记已读
+            ids = request.data.get('ids', [])
+            Message.objects.filter(
+                receiver=request.user.userprofile,
+                id__in=ids
+            ).update(is_read=True)
+        else:
+            # 标记单个消息已读
+            try:
+                message = Message.objects.get(
+                    pk=pk,
+                    receiver=request.user.userprofile
+                )
+                message.is_read = True
+                message.save()
+            except Message.DoesNotExist:
+                return Response({'message': '消息不存在'}, status=status.HTTP_404_NOT_FOUND)
+                
+        return Response({'success': True}, status=status.HTTP_200_OK)
+        
+    def delete(self, request, pk=None):
+        if not pk:
+            # 批量删除消息
+            ids = request.data.get('ids', [])
+            Message.objects.filter(
+                receiver=request.user.userprofile,
+                id__in=ids
+            ).delete()
+        else:
+            # 删除单个消息
+            try:
+                message = Message.objects.get(
+                    pk=pk,
+                    receiver=request.user.userprofile
+                )
+                message.delete()
+            except Message.DoesNotExist:
+                return Response({'message': '消息不存在'}, status=status.HTTP_404_NOT_FOUND)
+                
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+class UnreadMessageCountView(APIView):
+    def get(self, request):
+        count = Message.objects.filter(
+            receiver=request.user.userprofile,
+            is_read=False
+        ).count()
+        return Response({'count': count}, status=status.HTTP_200_OK)
 
 

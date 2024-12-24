@@ -20,6 +20,7 @@ class LogCostMiddleware(MiddlewareMixin):
         self.white_list = ['/acg/login/',
                            '/acg/register/',
                            '/acg/post/',
+                           '/acg/messages/unread/count/',
                            ]
         # 使用正则表达式匹配动态路径
         self.white_list_patterns = [
