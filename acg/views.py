@@ -8,7 +8,9 @@ from rest_framework.response import Response
 from rest_framework import status,generics
 from .models import UserProfile,Post,Follow
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 # Create your views here.
 
 #这是登录视图
@@ -89,24 +91,22 @@ class TestView(APIView):
 
 
 # 获取关注列表
-class FollowListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = FollowSerializer
-
-    def get_queryset(self):
-        return Follow.objects.filter(follower=self.request.user)
+class FollowListView(APIView):
+    def get(self, request):
+        follows = Follow.objects.filter(follower=request.user)
+        serializer = FollowSerializer(follows, many=True)
+        return Response(serializer.data)
 
 # 关注用户
-class FollowUserView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = FollowSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(follower=self.request.user)
+class FollowUserView(APIView):
+    def post(self, request):
+        user_id = request.data.get('userId')
+        followed_user = get_object_or_404(User, id=user_id)
+ # 创建关注关系 follow, created = Follow.objects.get_or_create(follower=request.user, followed=followed_user)
 
 # 取消关注
-class UnfollowUserView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Follow.objects.filter(follower=self.request.user)
+class UnfollowUserView(APIView):
+    def delete(self, request, user_id):
+        follow = get_object_or_404(Follow, follower=request.user, followed_id=user_id)
+        follow.delete()
+        return Response({'message': 'Successfully unfollowed.'}, status=status.HTTP_204_NO_CONTENT)
