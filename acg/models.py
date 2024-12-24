@@ -7,11 +7,16 @@ class UserProfile(models.Model):
     #userid，通过外键关联到User表
     userid = models.OneToOneField(User, on_delete=models.CASCADE)
     #昵称,不能为空，数据库不能为空，前端可以不传，默认为100+默认8位随机数
-    nickname = models.CharField(max_length=20,null=False,blank=True,default='用户100'+str(random.randint(10000000,99999999)))
+    nickname = models.CharField(max_length=20,null=False,blank=True)
     #头像文件，存放前端，这里是相对路径,数据库不能为空，前端可以不传 默认为‘avatars/avatar.jpg’
     avatar = models.TextField(null=False,blank=True,default='avatars/avatar.jpg')
     #个性描述，可以为空
     description = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.nickname:
+            self.nickname = '用户100' + str(random.randint(10000000, 99999999))
+        super(UserProfile, self).save(*args, **kwargs)
 
 class Post(models.Model):
     #作者id,外键关联到UserProfile表
@@ -103,7 +108,7 @@ class CollectArticle(models.Model):
         unique_together = ('collector','article')
 
 class Comment(models.Model):
-    #评论有可能是对动态的评论，也有可能是对文章的评论，也有可能是对评论的评论
+    #评论有可能是对动态的评论，也有可能是对文章的评论，也有可能是对评论的评论 post/article/comment
     commenttype = models.CharField(max_length=10)
     #评论的动态id,外键关联到Post表
     postid = models.ForeignKey(Post, on_delete=models.CASCADE,blank=True,null=True)

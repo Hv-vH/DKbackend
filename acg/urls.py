@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import LoginView,RegisterView,TestView,UserProfileView,PostView,FollowListView, FollowUserView, UnfollowUserView,TopicView
+from .views import (LoginView,RegisterView,TestView,UserProfileView,PostView,
+                    FollowListView, FollowUserView, UnfollowUserView,TopicView,
+                    CommentView)
 
 
 urlpatterns = [
@@ -15,6 +17,8 @@ urlpatterns = [
     path('topic/',TopicView.as_view(),name='topic'),
     path('topic/<int:pk>/',TopicView.as_view(),name='topic'),
     path('test/',TestView.as_view(),name='test'),
+    path('comment/',CommentView.as_view(),name='comment'),
+
 ]
 
 

@@ -1,12 +1,14 @@
 from django.core.serializers import serialize
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import LoginSerializer,UserProfileSerializer,RegisterSerializer,PostSerializer,FollowSerializer,TopicSerializer
+from .serializers import (LoginSerializer,UserProfileSerializer,RegisterSerializer,
+                          PostSerializer,FollowSerializer,TopicSerializer,CommentSerializer)
+
 from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
 from rest_framework import status,generics
-from .models import UserProfile,Post,Follow,Topic
+from .models import UserProfile,Post,Follow,Topic,Comment
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
@@ -75,20 +77,31 @@ class PostView(APIView):
             #如果post不存在
             if post is None:
                 return Response({'message':'动态不存在'},status=status.HTTP_404_NOT_FOUND)
-            serializer = PostSerializer(post)
+            serializer = PostSerializer(post,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             #先判断是否有search关键字
             search_query = request.query_params.get('search', None)
+            #还需要判断是否有category关键字
+            category_query = request.query_params.get('category', None)
             if search_query:
                 #从动态标题和动态内容中搜索
                 posts = Post.objects.filter(
                     Q(posttitle__icontains=search_query) |
                     Q(postcontent__icontains=search_query)
                 )
+                #可能没有对应的数据
+                if not posts:
+                    return Response({'message':'没有找到对应的动态'},status=status.HTTP_404_NOT_FOUND)
+            elif category_query:
+                #从动态标签中搜索
+                posts = Post.objects.filter(posttags__icontains=category_query)
+                #可能没有对应的数据
+                if not posts:
+                    return Response({'message':'没有找到对应的动态'},status=status.HTTP_404_NOT_FOUND)
             else:
                 posts = Post.objects.all()
-            serializer = PostSerializer(posts, many=True)
+            serializer = PostSerializer(posts, many=True,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
     def post(self,request):
         pass
@@ -144,3 +157,24 @@ class UnfollowUserView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return Follow.objects.filter(follower=self.request.user)
+    
+#这是评论视图
+class CommentView(APIView):
+    def get(self,request):
+        comment_type = request.query_params.get('type',None)
+        if comment_type == 'post':
+            post_id = request.query_params.get('id',None)
+            if not post_id:
+                return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
+            comments = Comment.objects.filter(commenttype='post',postid=post_id)
+            serializer = CommentSerializer(comments,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        elif comment_type == 'article':
+            article_id = request.query_params.get('id',None)
+            if not article_id:
+                return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
+            comments = Comment.objects.filter(commenttype='article',articleid=article_id)
+            serializer = CommentSerializer(comments,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        else:
+            return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
