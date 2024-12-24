@@ -7,11 +7,18 @@ class UserProfile(models.Model):
     #userid，通过外键关联到User表
     userid = models.OneToOneField(User, on_delete=models.CASCADE)
     #昵称,不能为空，数据库不能为空，前端可以不传，默认为100+默认8位随机数
-    nickname = models.CharField(max_length=20,null=False,blank=True,default='用户100'+str(random.randint(10000000,99999999)))
-    #头像文件，存放前端，这里是相对路径,数据库不能为空，前端可以不传 默认为'avatars/avatar.jpg'
+
+    nickname = models.CharField(max_length=20,null=False,blank=True)
+    #头像文件，存放前端，这里是相对路径,数据库不能为空，前端可以不传 默认为‘avatars/avatar.jpg’
+
     avatar = models.TextField(null=False,blank=True,default='avatars/avatar.jpg')
     #个性描述，可以为空
     description = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.nickname:
+            self.nickname = '用户100' + str(random.randint(10000000, 99999999))
+        super(UserProfile, self).save(*args, **kwargs)
 
 class Post(models.Model):
     #作者id,外键关联到UserProfile表
@@ -103,7 +110,7 @@ class CollectArticle(models.Model):
         unique_together = ('collector','article')
 
 class Comment(models.Model):
-    #评论有可能是对动态的评论，也有可能是对文章的评论，也有可能是对评论的评论
+    #评论有可能是对动态的评论，也有可能是对文章的评论，也有可能是对评论的评论 post/article/comment
     commenttype = models.CharField(max_length=10)
     #评论的动态id,外键关联到Post表
     postid = models.ForeignKey(Post, on_delete=models.CASCADE,blank=True,null=True)
@@ -129,6 +136,17 @@ class LikeComment(models.Model):
     class Meta:
         #联合唯一键
         unique_together = ('liker','comment')
+        
+#定义关注模型
+class Follow(models.Model):
+    follower = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
+    followed = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('follower', 'followed')
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.followed.username}"
 
 class Message(models.Model):
     MESSAGE_TYPES = (
@@ -156,6 +174,28 @@ class Message(models.Model):
     metadata = models.JSONField(null=True, blank=True)
 
 
+class Topic(models.Model):
+    #话题标题
+    topictitle = models.CharField(max_length=50)
+    #话题下的tag
+    topictags = models.TextField()
+    #话题描述
+    topicdescription = models.TextField()
 
-
-
+class Activity(models.Model):
+    #活动标题
+    activitytitle = models.CharField(max_length=50)
+    #活动封面图
+    activitycoverimage = models.TextField()
+    #活动内容
+    activitycontent = models.TextField()
+    #活动发布时间
+    activitypublish_time = models.DateTimeField(auto_now_add=True)
+    #活动开始时间
+    activitystart_time = models.DateTimeField()
+    #活动结束时间
+    activityend_time = models.DateTimeField()
+    #活动组织者
+    activityorganizer = models.CharField(max_length=50)
+    #联系方式
+    activitycontract = models.CharField(max_length=50)
