@@ -1,0 +1,77 @@
+/api/messages
+获取消息列表
+GET /api/messages
+参数:
+page: 页码(可选)
+size: 每页数量(可选)
+type: 消息类型(可选,system/activity/comment/like)
+响应:
+{
+"total": 100,
+"items": [{
+"id": 1,
+"type": "system",
+"title": "系统通知",
+"content": "欢迎使用本应用",
+"sender": {
+"id": 1,
+"username": "系统通知",
+"avatar": "/assets/system-avatar.png"
+},
+"createTime": "2024-03-19T10:00:00Z",
+"isRead": false
+}]
+}
+获取未读消息数
+GET /api/messages/unread/count
+响应:
+{
+"count": 5
+}
+标记消息已读
+PUT /api/messages/:id/read
+响应:
+{
+"success": true
+}
+批量标记消息已读
+PUT /api/messages/read
+参数:
+ids: 消息ID数组
+响应:
+{
+"success": true
+}
+删除消息
+DELETE /api/messages/:id
+响应:
+{
+"success": true
+}
+批量删除消息
+DELETE /api/messages
+参数:
+ids: 消息ID数组
+响应:
+{
+"success": true
+}
+获取消息详情
+GET /api/messages/:id
+响应:
+{
+"id": 1,
+"type": "system",
+"title": "系统通知",
+"content": "欢迎使用本应用",
+"sender": {
+"id": 1,
+"username": "系统通知",
+"avatar": "/assets/system-avatar.png"
+},
+"createTime": "2024-03-19T10:00:00Z",
+"isRead": false,
+"metadata": {
+// 不同类型消息的额外数据
+}
+}

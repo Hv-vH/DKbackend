@@ -20,34 +20,39 @@ class LogCostMiddleware(MiddlewareMixin):
         self.white_list = ['/acg/login/',
                            '/acg/register/',
                            '/acg/post/',
+                           '/acg/messages/unread/count/',
+                            '/acg/topic/',
+
                            ]
         # 使用正则表达式匹配动态路径
         self.white_list_patterns = [
             # 匹配动态路径 '/acg/post/<int:pk>/
             re.compile(r'^/acg/post/\d+/'),
+            re.compile(r'^/acg/topic/\d+/'),
         ]
 
     def process_view(self, request, view_func, *view_args, **view_kwargs):
         #如果返回None,那么会正常执行视图函数以及其他中间件
         #如果返回HttpResponse对象,那么不会执行视图函数以及其他中间件
 
-        #静态路径匹配
-        if request.path in self.white_list:
-            request.user = AnonymousUser()
-            request.auth = None
-            return None
-        #动态路径匹配
-        for pattern in self.white_list_patterns:
-            if pattern.match(request.path):
-                # 匹配成功，直接返回
-                request.user = AnonymousUser()
-                request.auth = None
-                return None
-
+        #如果携带了JWT Token,就跳过白名单，直接验证JWT Token。如果没有再判断是否在白名单中
         try:
             auth = get_authorization_header(request).split()
 
             if not auth or auth[0].lower() != self.keyword.lower().encode():
+                #判断是否在白名单中
+                # 静态路径匹配
+                if request.path in self.white_list:
+                    request.user = AnonymousUser()
+                    request.auth = None
+                    return None
+                # 动态路径匹配
+                for pattern in self.white_list_patterns:
+                    if pattern.match(request.path):
+                        # 匹配成功，直接返回
+                        request.user = AnonymousUser()
+                        request.auth = None
+                        return None
                 raise exceptions.ValidationError('请传入JWT Token！')
 
             if len(auth) == 1:
