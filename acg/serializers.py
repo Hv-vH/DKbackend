@@ -63,12 +63,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 #创建动态信息序列化器
 class PostSerializer(serializers.ModelSerializer):
     #包含UserProfile和User的字段
-    userid = serializers.IntegerField(source='authorid.userid.id')
-    username = serializers.CharField(source='authorid.userid.username')
-    email = serializers.CharField(source='authorid.userid.email')
-    nickname = serializers.CharField(source='authorid.nickname')
-    avatar = serializers.CharField(source='authorid.avatar')
-    description = serializers.CharField(source='authorid.description')
+    userid = serializers.IntegerField(source='authorid.userid.id',read_only=True)
+    username = serializers.CharField(source='authorid.userid.username',read_only=True)
+    email = serializers.CharField(source='authorid.userid.email',read_only=True)
+    nickname = serializers.CharField(source='authorid.nickname',read_only=True)
+    avatar = serializers.CharField(source='authorid.avatar',read_only=True)
+    description = serializers.CharField(source='authorid.description',read_only=True)
     #点赞数
     like_count = serializers.SerializerMethodField()
     #收藏数
@@ -87,6 +87,13 @@ class PostSerializer(serializers.ModelSerializer):
                   'posttitle','postcontent','postcreated_time','postimages','posttags',
                   'like_count','collect_count','comment_count','is_like','is_collect'
                   )
+
+    def create(self, validated_data):
+        #从请求中获取用户ID
+        authorid = self.context.get('request').user.id
+        #创建动态
+        post = Post.objects.create(authorid_id=authorid,**validated_data)
+        return post
 
     def get_like_count(self,obj):
         return LikePost.objects.filter(post=obj).count()

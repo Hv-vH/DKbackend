@@ -107,7 +107,13 @@ class PostView(APIView):
             serializer = PostSerializer(posts, many=True,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
     def post(self,request):
-        pass
+        serializer = PostSerializer(data=request.data,context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
 
 class TopicView(APIView):
     def get_object(self,pk):
