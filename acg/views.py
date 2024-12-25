@@ -8,7 +8,7 @@ from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
 from rest_framework import status,generics
-from .models import UserProfile,Post,Follow,Topic,Comment,Message
+from .models import UserProfile,Post,Follow,Topic,Comment,Message,Article,LikePost, LikeArticle, LikeComment
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -273,3 +273,48 @@ class CommentView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
+
+class LikePostView(APIView):
+    def post(self, request, post_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            post = Post.objects.get(id=post_id)
+            like, created = LikePost.objects.get_or_create(liker=user_profile, post=post)
+
+            if created:
+                return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经点赞过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Post.DoesNotExist:
+                return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+class LikeArticleView(APIView):
+    def post(self, request, article_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            article = Article.objects.get(id=article_id)
+            like, created = LikeArticle.objects.get_or_create(liker=user_profile, article=article)
+
+            if created:
+                return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经点赞过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Article.DoesNotExist:
+            return Response({'detail': '文章未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+class LikeCommentView(APIView):
+    def post(self, request, comment_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            comment = Comment.objects.get(id=comment_id)
+            like, created = LikeComment.objects.get_or_create(liker=user_profile, comment=comment)
+
+            if created:
+                return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经点赞过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Comment.DoesNotExist:
+            return Response({'detail': '评论未找到'}, status=status.HTTP_404_NOT_FOUND)

@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (LoginView,RegisterView,TestView,UserProfileView,PostView,
                     FollowListView, FollowUserView, UnfollowUserView,TopicView,
-                    CommentView,MessageView, UnreadMessageCountView)
+                    CommentView,MessageView, UnreadMessageCountView,LikePostView,
+                    LikeArticleView, LikeCommentView)
 
 
 urlpatterns = [
@@ -19,13 +20,16 @@ urlpatterns = [
     path('messages/unread/count/', UnreadMessageCountView.as_view(), name='unread-message-count'),
     path('messages/read/', MessageView.as_view(), name='messages-read'),
     path('messages/<int:pk>/read/', MessageView.as_view(), name='message-read'),
-    path('api/follows/', FollowListView.as_view(), name='follow-list'),
-    path('api/follows/', FollowUserView.as_view(), name='follow-user'),
-    path('api/follows/<int:pk>/', UnfollowUserView.as_view(), name='unfollow-user'),
+    path('follows/', FollowListView.as_view(), name='follow-list'),
+    path('follows/', FollowUserView.as_view(), name='follow-user'),
+    path('follows/<int:pk>/', UnfollowUserView.as_view(), name='unfollow-user'),
     path('topic/',TopicView.as_view(),name='topic'),
     path('topic/<int:pk>/',TopicView.as_view(),name='topic'),
     path('test/',TestView.as_view(),name='test'),
     path('comment/',CommentView.as_view(),name='comment'),
+    path('posts/<int:post_id>/like', LikePostView.as_view(), name='like_post'),
+    path('articles/<int:article_id>/like', LikeArticleView.as_view(), name='like_article'),
+    path('comments/<int:comment_id>/like', LikeCommentView.as_view(), name='like_comment'),
 ]
 
 
