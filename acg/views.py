@@ -8,7 +8,7 @@ from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
 from rest_framework import status,generics
-from .models import UserProfile,Post,Follow,Topic,Comment,Message,Article,LikePost, LikeArticle, LikeComment
+from .models import UserProfile,Post,Follow,Topic,Comment,Message,Article,LikePost, LikeArticle, LikeComment,CollectPost, CollectArticle
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -318,3 +318,35 @@ class LikeCommentView(APIView):
 
         except Comment.DoesNotExist:
             return Response({'detail': '评论未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+#收藏post
+class CollectPostView(APIView):
+    def post(self, request, post_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            post = Post.objects.get(id=post_id)
+            collect, created = CollectPost.objects.get_or_create(collector=user_profile, post=post)
+
+            if created:
+                return Response({'detail': '收藏成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经收藏过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Post.DoesNotExist:
+            return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+#收藏article
+class CollectArticleView(APIView):
+    def post(self, request, article_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            article = Article.objects.get(id=article_id)
+            collect, created = CollectArticle.objects.get_or_create(collector=user_profile, article=article)
+
+            if created:
+                return Response({'detail': '收藏成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经收藏过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Article.DoesNotExist:
+            return Response({'detail': '文章未找到'}, status=status.HTTP_404_NOT_FOUND)

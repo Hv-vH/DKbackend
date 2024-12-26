@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (LoginView,RegisterView,TestView,UserProfileView,PostView,
                     FollowListView, FollowUserView, UnfollowUserView,TopicView,
                     CommentView,MessageView, UnreadMessageCountView,LikePostView,
-                    LikeArticleView, LikeCommentView)
+                    LikeArticleView, LikeCommentView,CollectPostView, CollectArticleView)
 
 
 urlpatterns = [
@@ -30,6 +30,8 @@ urlpatterns = [
     path('posts/<int:post_id>/like', LikePostView.as_view(), name='like_post'),
     path('articles/<int:article_id>/like', LikeArticleView.as_view(), name='like_article'),
     path('comments/<int:comment_id>/like', LikeCommentView.as_view(), name='like_comment'),
+    path('activity/collect/<int:post_id>', CollectPostView.as_view(), name='collect_post'),
+    path('article/collect/<int:article_id>', CollectArticleView.as_view(), name='collect_article'),
 ]
 
 
