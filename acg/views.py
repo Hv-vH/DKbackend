@@ -9,15 +9,11 @@ from rest_framework.response import Response
 from rest_framework import status,generics
 from .models import UserProfile,Post,Follow,Topic,Comment,Message
 from rest_framework.permissions import IsAuthenticated
-<<<<<<< HEAD
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-=======
 from django.core.paginator import Paginator
 from django.db.models import Q
-
->>>>>>> b40e5caf891bffb9fe8083ff6b4231a81d535c0a
 # Create your views here.
 
 #这是登录视图
@@ -142,32 +138,47 @@ class TestView(APIView):
 class MessageView(APIView):
     def get(self, request, pk=None):
         if pk:
-            # 获取单个消息详情
             try:
+                # 获取单条消息
                 message = Message.objects.get(
                     pk=pk,
                     receiver=request.user.userprofile
                 )
+                # 如果消息未读,标记为已读
+                if not message.is_read:
+                    message.is_read = True
+                    message.save()
+                    
                 serializer = MessageSerializer(message)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Message.DoesNotExist:
                 return Response({'message': '消息不存在'}, status=status.HTTP_404_NOT_FOUND)
         
         # 获取消息列表
-        page = int(request.query_params.get('page', 1))
-        size = int(request.query_params.get('size', 10))
         message_type = request.query_params.get('type')
         
-        messages = Message.objects.filter(receiver=request.user.userprofile)
+        # 基础查询
+        messages = Message.objects.filter(
+            receiver=request.user.userprofile
+        ).order_by('-created_time')
+        
+        # 根据消息类型筛选
         if message_type:
             messages = messages.filter(type=message_type)
-            
-        paginator = Paginator(messages, size)
-        messages = paginator.get_page(page)
+        
+        # 获取未读消息的ID列表
+        unread_ids = list(messages.filter(is_read=False).values_list('id', flat=True))
+        
+        # 将未读消息标记为已读
+        if unread_ids:
+            Message.objects.filter(
+                id__in=unread_ids,
+                receiver=request.user.userprofile
+            ).update(is_read=True)
         
         serializer = MessageSerializer(messages, many=True)
         return Response({
-            'total': paginator.count,
+            'total': messages.count(),
             'items': serializer.data
         }, status=status.HTTP_200_OK)
         
@@ -214,13 +225,85 @@ class MessageView(APIView):
                 
         return Response({'success': True}, status=status.HTTP_200_OK)
 
+    def post(self, request):
+        # 获取请求数据
+        receiver_id = request.data.get('receiver')
+        content = request.data.get('content')
+        message_type = request.data.get('type')
+        metadata = request.data.get('metadata', None)
+
+        # 添加数据验证
+        if not all([receiver_id, content, message_type]):
+            return Response(
+                {'message': '缺少必要字段'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 验证消息类型是否合法
+        if message_type not in dict(Message.MESSAGE_TYPES):
+            return Response(
+                {'message': '无效的消息类型'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # 获取接收者的 UserProfile
+            receiver = UserProfile.objects.get(id=receiver_id)
+            
+            # 验证不能给自己发消息
+            if receiver == request.user.userprofile:
+                return Response(
+                    {'message': '不能给自己发送消息'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # 创建消息
+            message = Message.objects.create(
+                sender=request.user.userprofile,
+                receiver=receiver,
+                content=content,
+                type=message_type,
+                metadata=metadata
+            )
+            
+            serializer = MessageSerializer(message)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        except UserProfile.DoesNotExist:
+            return Response({'message': '接收者不存在'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 class UnreadMessageCountView(APIView):
     def get(self, request):
-        count = Message.objects.filter(
-            receiver=request.user.userprofile,
-            is_read=False
-        ).count()
-        return Response({'count': count}, status=status.HTTP_200_OK)
+        # 获取所有类型的未读消息数量
+        counts = {
+            'reply': Message.objects.filter(
+                receiver=request.user.userprofile,
+                type='reply',
+                is_read=False
+            ).count(),
+            'mention': Message.objects.filter(
+                receiver=request.user.userprofile,
+                type='mention',
+                is_read=False
+            ).count(),
+            'like': Message.objects.filter(
+                receiver=request.user.userprofile,
+                type='like',
+                is_read=False
+            ).count(),
+            'private': Message.objects.filter(
+                receiver=request.user.userprofile,
+                type='private',
+                is_read=False
+            ).count(),
+            'total': Message.objects.filter(
+                receiver=request.user.userprofile,
+                is_read=False
+            ).count()
+        }
+        return Response(counts, status=status.HTTP_200_OK)
 
 
 
@@ -239,18 +322,11 @@ class FollowUserView(APIView):
  # 创建关注关系 follow, created = Follow.objects.get_or_create(follower=request.user, followed=followed_user)
 
 # 取消关注
-<<<<<<< HEAD
 class UnfollowUserView(APIView):
     def delete(self, request, user_id):
         follow = get_object_or_404(Follow, follower=request.user, followed_id=user_id)
         follow.delete()
         return Response({'message': 'Successfully unfollowed.'}, status=status.HTTP_204_NO_CONTENT)
-=======
-class UnfollowUserView(generics.DestroyAPIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Follow.objects.filter(follower=self.request.user)
     
 #这是评论视图
 class CommentView(APIView):
@@ -272,4 +348,3 @@ class CommentView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
->>>>>>> b40e5caf891bffb9fe8083ff6b4231a81d535c0a

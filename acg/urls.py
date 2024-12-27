@@ -16,14 +16,16 @@ urlpatterns = [
     path('follows/', FollowListView.as_view(), name='follow-list'),
     path('follows/', FollowUserView.as_view(), name='follow-user'),
     path('follows/<int:pk>/', UnfollowUserView.as_view(), name='unfollow-user'),
+    #获取消息列表和发送新消息
     path('messages/', MessageView.as_view(), name='messages'),
+    #处理单条消息的操作（GET 请求：获取单条消息详情   DELETE 请求：删除单条消息）
     path('messages/<int:pk>/', MessageView.as_view(), name='message-detail'),
+    #获取未读消息数量
     path('messages/unread/count/', UnreadMessageCountView.as_view(), name='unread-message-count'),
+    #批量标记消息为已读
     path('messages/read/', MessageView.as_view(), name='messages-read'),
-    path('messages/<int:pk>/read/', MessageView.as_view(), name='message-read'),
-    path('api/follows/', FollowListView.as_view(), name='follow-list'),
-    path('api/follows/', FollowUserView.as_view(), name='follow-user'),
-    path('api/follows/<int:pk>/', UnfollowUserView.as_view(), name='unfollow-user'),
+    #标记单条消息为已读
+    path('messages/read/<int:pk>/', MessageView.as_view(), name='message-read'),
     path('topic/',TopicView.as_view(),name='topic'),
     path('topic/<int:pk>/',TopicView.as_view(),name='topic'),
     path('test/',TestView.as_view(),name='test'),

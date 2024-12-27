@@ -9,7 +9,7 @@ class UserProfile(models.Model):
     #昵称,不能为空，数据库不能为空，前端可以不传，默认为100+默认8位随机数
 
     nickname = models.CharField(max_length=20,null=False,blank=True)
-    #头像文件，存放前端，这里是相对路径,数据库不能为空，前端可以不传 默认为‘avatars/avatar.jpg’
+    #头像文件，存放前端，这里是相对路径,数据库不能为空，前端可以不传 默认为'avatars/avatar.jpg'
 
     avatar = models.TextField(null=False,blank=True,default='avatars/avatar.jpg')
     #个性描述，可以为空
@@ -61,7 +61,7 @@ class CollectPost(models.Model):
 class Article(models.Model):
     #作者id,外键关联到UserProfile表
     authorid = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    #文章标题,不能为空
+    #文章标题,不���为空
     articletitle = models.CharField(max_length=50,blank=False)
     #文章所属的标签
     articletags = models.TextField()
@@ -150,18 +150,16 @@ class Follow(models.Model):
 
 class Message(models.Model):
     MESSAGE_TYPES = (
-        ('system', '系统消息'),
-        ('activity', '活动消息'),
-        ('comment', '评论消息'),
-        ('like', '点赞消息')
+        ('reply', '回复我的'),
+        ('mention', '@我'),
+        ('like', '收到的赞'),
+        ('private', '私信')
     )
     
     # 发送者id,外键关联到UserProfile表
     sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='sent_messages')
     # 接收者id,外键关联到UserProfile表
     receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='received_messages')
-    # 消息标题
-    title = models.CharField(max_length=50)
     # 消息内容
     content = models.TextField()
     # 消息类型

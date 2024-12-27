@@ -135,12 +135,12 @@ class TopicSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = serializers.SerializerMethodField()
-    createTime = serializers.DateTimeField(source='created_time', format='%Y-%m-%dT%H:%M:%SZ')
-    isRead = serializers.BooleanField(source='is_read')
+    is_read = serializers.BooleanField(source='is_read')
+    created_time = serializers.DateTimeField(source='created_time')
     
     class Meta:
         model = Message
-        fields = ['id', 'type', 'title', 'content', 'sender', 'createTime', 'isRead', 'metadata']
+        fields = ['id', 'type', 'content', 'sender', 'created_time', 'is_read', 'metadata']
         
     def get_sender(self, obj):
         return {
