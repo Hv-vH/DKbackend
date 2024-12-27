@@ -2,12 +2,13 @@ from django.core.serializers import serialize
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .serializers import (LoginSerializer,UserProfileSerializer,RegisterSerializer,
-                          PostSerializer,FollowSerializer,TopicSerializer,CommentSerializer,MessageSerializer)
+                          PostSerializer,FollowSerializer,TopicSerializer,CommentSerializer,
+                          MessageSerializer)
 from datetime import datetime
 from .authentications import generate_jwt
 from rest_framework.response import Response
 from rest_framework import status,generics
-from .models import UserProfile,Post,Follow,Topic,Comment,Message
+from .models import UserProfile,Post,Follow,Topic,Comment,Message,Article,LikePost, LikeArticle, LikeComment,CollectPost, CollectArticle
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -106,7 +107,13 @@ class PostView(APIView):
             serializer = PostSerializer(posts, many=True,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
     def post(self,request):
-        pass
+        serializer = PostSerializer(data=request.data,context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
 
 class TopicView(APIView):
     def get_object(self,pk):
@@ -307,27 +314,27 @@ class UnreadMessageCountView(APIView):
 
 
 
-# 获取关注列表
-class FollowListView(APIView):
+# 关注列表、关注用户和取消关注的视图
+class FollowView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         follows = Follow.objects.filter(follower=request.user)
         serializer = FollowSerializer(follows, many=True)
         return Response(serializer.data)
 
-# 关注用户
-class FollowUserView(APIView):
     def post(self, request):
         user_id = request.data.get('userId')
         followed_user = get_object_or_404(User, id=user_id)
- # 创建关注关系 follow, created = Follow.objects.get_or_create(follower=request.user, followed=followed_user)
+        follow, created = Follow.objects.get_or_create(follower=request.user, followed=followed_user)
+        return Response({'message': 'Successfully followed.'}, status=status.HTTP_201_CREATED)
 
-# 取消关注
-class UnfollowUserView(APIView):
     def delete(self, request, user_id):
         follow = get_object_or_404(Follow, follower=request.user, followed_id=user_id)
         follow.delete()
         return Response({'message': 'Successfully unfollowed.'}, status=status.HTTP_204_NO_CONTENT)
-    
+
+
 #这是评论视图
 class CommentView(APIView):
     def get(self,request):
@@ -348,3 +355,109 @@ class CommentView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
+
+class LikePostView(APIView):
+    def post(self, request, post_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            post = Post.objects.get(id=post_id)
+            like, created = LikePost.objects.get_or_create(liker=user_profile, post=post)
+
+            if created:
+                return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经点赞过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Post.DoesNotExist:
+                return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+class LikeArticleView(APIView):
+    def post(self, request, article_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            article = Article.objects.get(id=article_id)
+            like, created = LikeArticle.objects.get_or_create(liker=user_profile, article=article)
+
+            if created:
+                return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经点赞过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Article.DoesNotExist:
+            return Response({'detail': '文章未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+class LikeCommentView(APIView):
+    def post(self, request, comment_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            comment = Comment.objects.get(id=comment_id)
+            like, created = LikeComment.objects.get_or_create(liker=user_profile, comment=comment)
+
+            if created:
+                return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经点赞过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Comment.DoesNotExist:
+            return Response({'detail': '评论未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+#收藏post
+class CollectPostView(APIView):
+    def post(self, request, post_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            post = Post.objects.get(id=post_id)
+            collect, created = CollectPost.objects.get_or_create(collector=user_profile, post=post)
+
+            if created:
+                return Response({'detail': '收藏成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经收藏过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Post.DoesNotExist:
+            return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+#收藏article
+class CollectArticleView(APIView):
+    def post(self, request, article_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            article = Article.objects.get(id=article_id)
+            collect, created = CollectArticle.objects.get_or_create(collector=user_profile, article=article)
+
+            if created:
+                return Response({'detail': '收藏成功'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '您已经收藏过了'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Article.DoesNotExist:
+            return Response({'detail': '文章未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+#取消收藏
+class UncollectPostView(APIView):
+    def post(self, request, post_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            post = Post.objects.get(id=post_id)
+            collect = CollectPost.objects.get(collector=user_profile, post=post)
+            collect.delete()
+            return Response({'detail': '取消收藏成功'}, status=status.HTTP_204_NO_CONTENT)
+
+        except CollectPost.DoesNotExist:
+            return Response({'detail': '您尚未收藏此动态'}, status=status.HTTP_400_BAD_REQUEST)
+        except Post.DoesNotExist:
+            return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+class UncollectArticleView(APIView):
+    def post(self, request, article_id):
+        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        try:
+            article = Article.objects.get(id=article_id)
+            collect = CollectArticle.objects.get(collector=user_profile, article=article)
+            collect.delete()
+            return Response({'detail': '取消收藏成功'}, status=status.HTTP_204_NO_CONTENT)
+
+        except CollectArticle.DoesNotExist:
+            return Response({'detail': '您尚未收藏此文章'}, status=status.HTTP_400_BAD_REQUEST)
+        except Article.DoesNotExist:
+            return Response({'detail': '文章未找到'}, status=status.HTTP_404_NOT_FOUND)
