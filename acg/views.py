@@ -229,7 +229,6 @@ class UnreadMessageCountView(APIView):
 
 # 关注列表、关注用户和取消关注的视图
 class FollowView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         follows = Follow.objects.filter(follower=request.user)
@@ -271,7 +270,7 @@ class CommentView(APIView):
 
 class LikePostView(APIView):
     def post(self, request, post_id):
-        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        user_id = request.user.id  # 获取当前用户的 ID
         try:
             post = Post.objects.get(id=post_id)
             like, created = LikePost.objects.get_or_create(liker=user_profile, post=post)
@@ -286,7 +285,7 @@ class LikePostView(APIView):
 
 class LikeArticleView(APIView):
     def post(self, request, article_id):
-        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        user_id = request.user.id  # 获取当前用户的 ID
         try:
             article = Article.objects.get(id=article_id)
             like, created = LikeArticle.objects.get_or_create(liker=user_profile, article=article)
@@ -301,7 +300,7 @@ class LikeArticleView(APIView):
 
 class LikeCommentView(APIView):
     def post(self, request, comment_id):
-        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        user_id = request.user.id  # 获取当前用户的 ID
         try:
             comment = Comment.objects.get(id=comment_id)
             like, created = LikeComment.objects.get_or_create(liker=user_profile, comment=comment)
@@ -314,13 +313,13 @@ class LikeCommentView(APIView):
         except Comment.DoesNotExist:
             return Response({'detail': '评论未找到'}, status=status.HTTP_404_NOT_FOUND)
 
-#收藏post
-class CollectPostView(APIView):
+# 收藏和取消收藏 Post
+class PostCollectionView(APIView):
     def post(self, request, post_id):
-        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        user_id = request.user.id  # 获取当前用户的 ID
         try:
             post = Post.objects.get(id=post_id)
-            collect, created = CollectPost.objects.get_or_create(collector=user_profile, post=post)
+            collect, created = CollectPost.objects.get_or_create(collector_id=user_id, post=post)
 
             if created:
                 return Response({'detail': '收藏成功'}, status=status.HTTP_201_CREATED)
@@ -330,13 +329,26 @@ class CollectPostView(APIView):
         except Post.DoesNotExist:
             return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
 
-#收藏article
-class CollectArticleView(APIView):
+    def delete(self, request, post_id):
+        user_id = request.user.id  # 获取当前用户的 ID
+        try:
+            post = Post.objects.get(id=post_id)
+            collect = CollectPost.objects.get(collector_id=user_id, post=post)
+            collect.delete()
+            return Response({'detail': '取消收藏成功'}, status=status.HTTP_204_NO_CONTENT)
+
+        except CollectPost.DoesNotExist:
+            return Response({'detail': '您尚未收藏此动态'}, status=status.HTTP_400_BAD_REQUEST)
+        except Post.DoesNotExist:
+            return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+# 收藏和取消收藏 Article
+class ArticleCollectionView(APIView):
     def post(self, request, article_id):
-        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+        user_id = request.user.id  # 获取当前用户的 ID
         try:
             article = Article.objects.get(id=article_id)
-            collect, created = CollectArticle.objects.get_or_create(collector=user_profile, article=article)
+            collect, created = CollectArticle.objects.get_or_create(collector_id=user_id, article=article)
 
             if created:
                 return Response({'detail': '收藏成功'}, status=status.HTTP_201_CREATED)
@@ -346,27 +358,11 @@ class CollectArticleView(APIView):
         except Article.DoesNotExist:
             return Response({'detail': '文章未找到'}, status=status.HTTP_404_NOT_FOUND)
 
-#取消收藏
-class UncollectPostView(APIView):
-    def post(self, request, post_id):
-        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
-        try:
-            post = Post.objects.get(id=post_id)
-            collect = CollectPost.objects.get(collector=user_profile, post=post)
-            collect.delete()
-            return Response({'detail': '取消收藏成功'}, status=status.HTTP_204_NO_CONTENT)
-
-        except CollectPost.DoesNotExist:
-            return Response({'detail': '您尚未收藏此动态'}, status=status.HTTP_400_BAD_REQUEST)
-        except Post.DoesNotExist:
-            return Response({'detail': '动态未找到'}, status=status.HTTP_404_NOT_FOUND)
-
-class UncollectArticleView(APIView):
-    def post(self, request, article_id):
-        user_profile = request.user.userprofile  # 获取当前用户的 UserProfile
+    def delete(self, request, article_id):
+        user_id = request.user.id  # 获取当前用户的 ID
         try:
             article = Article.objects.get(id=article_id)
-            collect = CollectArticle.objects.get(collector=user_profile, article=article)
+            collect = CollectArticle.objects.get(collector_id=user_id, article=article)
             collect.delete()
             return Response({'detail': '取消收藏成功'}, status=status.HTTP_204_NO_CONTENT)
 

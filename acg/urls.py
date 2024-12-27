@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (LoginView,RegisterView,TestView,UserProfileView,PostView,
                     FollowView,TopicView,
                     CommentView,MessageView, UnreadMessageCountView,LikePostView,
-                    LikeArticleView, LikeCommentView,CollectPostView, CollectArticleView,UncollectArticleView,UncollectPostView)
+                    LikeArticleView, LikeCommentView,PostCollectionView,ArticleCollectionView)
 
 
 urlpatterns = [
@@ -27,10 +27,10 @@ urlpatterns = [
     path('like/post/<int:post_id>/', LikePostView.as_view(), name='like_post'),
     path('like/article/<int:article_id>/', LikeArticleView.as_view(), name='like_article'),
     path('like/comment/<int:comment_id>/', LikeCommentView.as_view(), name='like_comment'),
-    path('collect/post/<int:post_id>/', CollectPostView.as_view(), name='collect_post'),
-    path('article/collect/<int:article_id>/', CollectArticleView.as_view(), name='collect_article'),
-    path('uncollect/post/<int:post_id>', UncollectPostView.as_view(), name='uncollect_post'),
-    path('article/uncollect/<int:article_id>', UncollectArticleView.as_view(), name='uncollect_article'),
+    path('posts/<int:post_id>/collect/', PostCollectionView.as_view(), name='collect-post'),  # 收藏帖子
+    path('posts/<int:post_id>/uncollect/', PostCollectionView.as_view(), name='uncollect-post'),  # 取消收藏帖子
+    path('articles/<int:article_id>/collect/', ArticleCollectionView.as_view(), name='collect-article'),  # 收藏文章
+    path('articles/<int:article_id>/uncollect/', ArticleCollectionView.as_view(), name='uncollect-article'),  # 取消收藏文章
 ]
 
 
