@@ -32,7 +32,7 @@ class LoginView(APIView):
             #同时返回用户信息
             return Response({'token':token,'user':UserProfileSerializer(user_profile).data},status=status.HTTP_200_OK)
         else:
-            return Response({"messages":"参数验证失败"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"messages":"参数验证失败",'errors':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 
 #这是注册视图
 class RegisterView(APIView):
@@ -49,8 +49,7 @@ class RegisterView(APIView):
             #同时返回用户信息
             return Response({'token':token,'user':UserProfileSerializer(user_profile).data},status=status.HTTP_200_OK)
         else:
-            return Response({"messages":"参数验证失败"},status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({"messages":"参数验证失败",'errors':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 #这是用户信息视图
 class UserProfileView(APIView):
     #获取用户信息
@@ -66,7 +65,6 @@ class UserProfileView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
 class PostView(APIView):
     def get_object(self,pk):
         try:
