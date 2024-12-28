@@ -35,6 +35,14 @@
 | 字段名      | 类型    | 描述             |
 |-------------|---------|------------------|
 | token       | string  | 登录成功后的令牌 |
+| user        | object  | 用户信息         |
+| user.id     | integer | 用户信息 ID      |
+| user.username | string | 用户名         |
+| user.email  | string  | 邮箱             |
+| user.nickname | string | 昵称            |
+| user.avatar | string  | 头像             |
+| user.description | string | 个人简介      |
+| user.userid | integer | 用户 ID          |
 
 **示例：**
 
@@ -57,20 +65,107 @@
 
 #### 失败响应
 
-| 字段名      | 类型    | 描述             |
-|-------------|---------|------------------|
-| detail      | string  | 错误信息         |
+| 字段名   | 类型     | 描述   |
+|-------|--------|------|
+| messages      | string | 错误信息 |
+| errors | object | 错误信息 |
+|具体错误信息| string | 错误信息 |
 
 **示例：**
 
 ```json
 {
-    pass
+    "messages": "参数验证失败",
+    "errors": {
+        "non_field_errors": [
+            "密码错误"
+        ]
+    }
+}
+```
+<img src="png/fail_login.png" alt="失败登陆的图片"/>
+
+---
+## 用户注册接口
+
+### 接口地址
+`POST /acg/register/`
+
+### 功能描述
+用于用户注册。
+
+### 请求参数
+| 参数名      | 类型    | 必填  | 描述             |
+|-------------|---------|-------|------------------|
+| username    | string  | 是    | 用户名           |
+| password    | string  | 是    | 密码             |
+
+### 请求示例
+
+```json
+{
+    "username": "example_user",
+    "password": "example_password"
 }
 ```
 
----
+### 返回结果
 
+#### 成功响应
+
+| 字段名      | 类型    | 描述             |
+|-------------|---------|------------------|
+| token       | string  | 注册成功后的令牌 |
+| user        | object  | 用户信息         |
+| user.id     | integer | 用户信息 ID      |
+| user.username | string | 用户名         |
+| user.email  | string  | 邮箱             |
+| user.nickname | string | 昵称            |
+| user.avatar | string  | 头像             |
+| user.description | string | 个人简介      |
+| user.userid | integer | 用户 ID          |
+
+**示例：**
+
+```json
+{
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjExLCJleHAiOjE3MzU5ODYwMjguNDk2NzAzfQ.zsGhPM-R45z7_m8Y9PTzRNtnsJIYpkpTIRaejCo7NsY",
+    "user": {
+        "id": 10,
+        "username": "user23",
+        "email": "",
+        "nickname": "用户10076078296",
+        "avatar": "avatars/avatar.jpg",
+        "description": "",
+        "userid": 11
+    }
+}
+```
+<img src="/png/success_register.png" alt="成功注册图片"/>
+
+#### 失败响应
+
+| 字段名   | 类型     | 描述   |
+|-------|--------|------|
+| messages      | string | 错误信息 |
+| errors | object | 错误信息 |
+|具体错误信息| string | 错误信息 |
+
+**示例：**
+
+```json
+{
+  "messages": "参数验证失败",
+  "errors": {
+        "non_field_errors": [
+            "用户名已存在"
+        ]
+    }
+}
+```
+<img src="/png/fail_register.png" alt="失败注册图片"/>
+
+---
 ## 获取用户信息接口
 
 ### 接口地址
@@ -131,8 +226,268 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```json
 {
-    pass
+   "detail": "请先登录"
+}
+```
+<img src="/png/fail_profile.png" alt="失败获取用户信息图片"/>
+
+---
+## 修改用户信息接口
+
+### 接口地址
+`PUT /acg/profile/`
+
+### 功能描述
+修改当前登录用户的信息。
+
+### 请求头部
+
+| 参数名      | 类型    | 必填  | 描述                    |
+|-------------|---------|-------|-----------------------|
+| Authorization | string | 是    | `JWT <token>` 格式的认证令牌 |
+
+### 请求参数
+
+| 参数名      | 类型    | 必填  | 描述             |
+|-------------|---------|-------|------------------|
+|avatar|file|否|用户头像|
+|nickname|string|否|用户昵称|
+|description|string|否|用户个人简介|
+
+### 请求示例
+
+```json
+{
+    "nickname": "S6总决赛冠军",
+    "description": "这个人没有介绍"
 }
 ```
 
+### 返回结果
+
+#### 成功响应
+
+| 字段名      | 类型    | 描述      |
+|-------------|---------|---------|
+| id          | integer | 用户信息 ID |
+| username    | string  | 用户名     |
+| email       | string  | 邮箱      |
+| nickname    | string  | 昵称      |
+| avatar      | string  | 头像      |
+| description | string  | 个人简介    |
+| userid      | integer | 用户 ID   |
+
+**示例：**
+
+```json
+{
+    "id": 1,
+    "username": "hfdd",
+    "email": "",
+    "nickname": "S6总决赛冠军",
+    "avatar": "src/1.jpg",
+    "description": "这个人没有介绍",
+    "userid": 1
+}
+```
+
+<img src="/png/success_put_profile.png" alt="成功修改用户信息图片"/>
+
+#### 失败响应
+
+| 字段名      | 类型    | 描述             |
+|-------------|---------|------------------|
+| detail      | string  | 错误信息         |
+
+**示例：**
+
+```json
+{
+   "detail": "请先登录"
+}
+```
+
+<img src="/png/fail_put_profile.png" alt="失败修改用户信息图片"/>
+
 ---
+## 获取post接口
+
+### 接口地址
+`GET /acg/post/`获取post列表
+
+`GET /acg/post/<int:post_id>/`获取指定ID的post
+
+`GET /acg/post/?search=<str:search>`标题和内容中带有搜索关键字的post列表
+
+`GET /acg/post/?category=<str:category>`标签中带有分类关键字的post列表
+
+### 功能描述
+获取post的list 或者 某个指定ID的post 或者 搜索关键字的post 或者 分类关键字的post
+
+### 请求头部
+
+因为未登录用户也可以查看post，所以在前段没有存放token时，可以不带token访问
+
+### 返回结果
+
+#### 成功响应
+
+| 字段名              | 类型      | 描述       |
+|------------------|---------|----------|
+| id               | integer | post ID  |
+| userid           | integer | 用户 ID    |
+| username         | string  | 用户名      |
+| email            | string  | 邮箱       |
+| nickname         | string  | 昵称       |
+| avatar           | string  | 头像       |
+| description      | string  | 个人简介     |
+| posttitle        | string  | post标题   |
+| postcontent      | string  | post内容   |
+| postcreated_time | string  | post创建时间 |
+| postimages       | string  | post图片   |
+| posttags         | string  | post标签   |
+| like_count       | integer | 点赞数      |
+| collect_count    | integer | 收藏数      |
+| comment_count    | integer | 评论数      |
+| is_like          | boolean | 是否点赞     |
+| is_collect       | boolean | 是否收藏     |
+
+**示例：**
+
+```json
+{        
+  "id": 1,
+  "userid": 3,
+  "username": "user100",
+  "email": "",
+  "nickname": "北京队",
+  "avatar": "avatars/avatar.jpg",
+  "description": "",
+  "posttitle": "今天终于收到了期待已久的《鬼灭之刃》..",
+  "postcontent": "最近入手了一个新的手办，质量非常好，大家看看怎么样？",
+  "postcreated_time": "2024-12-17T20:51:06",
+  "postimages": "['/src/assets/post1.png','/src/assets/post2.png','/src/assets/post3.png']",
+  "posttags": "['手办', '鬼灭之刃', '开箱']",
+  "like_count": 3,
+  "collect_count": 2,
+  "comment_count": 8,
+  "is_like": true,
+  "is_collect": false
+}
+```
+
+<img src="/png/success_post.png" alt="成功获取post图片"/>
+
+#### 失败响应
+
+没有做处理，只可能后端报错
+
+---
+## 发布post接口
+
+### 接口地址
+`POST /acg/post/`
+
+### 功能描述
+发布post
+
+### 请求头部 因为只有登录用户才能发表，所以必须有token
+| 参数名           | 类型     | 必填 | 描述                    |
+|---------------|--------|----|-----------------------|
+| Authorization | string | 是  | `JWT <token>` 格式的认证令牌 |
+
+### 请求参数
+| 参数名      | 类型    | 必填 | 描述             |
+|-------------|---------|----|------------------|
+|posttitle|string| 是  |post标题|
+|postcontent|string| 是  |post内容|
+|postimages|file| 是  |post图片|
+|posttags|string| 是  |post标签|
+
+
+### 请求示例
+
+```json
+{
+    "posttitle": "今天终于收到了期待已久的《鬼灭之刃》..",
+    "postcontent": "最近入手了一个新的手办，质量非常好，大家看看怎么样？",
+    "postimages": "['/src/assets/post1.png','/src/assets/post2.png','/src/assets/post3.png']",
+    "posttags": "['手办', '鬼灭之刃', '开箱']"
+}
+```
+
+### 返回结果
+
+#### 成功响应
+
+| 字段名              | 类型      | 描述       |
+|------------------|---------|----------|
+| id               | integer | post ID  |
+| userid           | integer | 用户 ID    |
+| username         | string  | 用户名      |
+| email            | string  | 邮箱       |
+| nickname         | string  | 昵称       |
+| avatar           | string  | 头像       |
+| description      | string  | 个人简介     |
+| posttitle        | string  | post标题   |
+| postcontent      | string  | post内容   |
+| postcreated_time | string  | post创建时间 |
+| postimages       | string  | post图片   |
+| posttags         | string  | post标签   |
+| like_count       | integer | 点赞数      |
+| collect_count    | integer | 收藏数      |
+| comment_count    | integer | 评论数      |
+| is_like          | boolean | 是否点赞     |
+| is_collect       | boolean | 是否收藏     |
+
+**示例：**
+
+```json
+{        
+   "id": 7,
+    "userid": 1,
+    "username": "hfdd",
+    "email": "",
+    "nickname": "测速接口名字",
+    "avatar": "测速接口头像",
+    "description": "测试接口介绍",
+    "posttitle": "post动态测试标题",
+    "postcontent": "post动态测试内容",
+    "postcreated_time": "2024-12-28T11:04:28.582751",
+    "postimages": "['/cs/tupian.jpg']",
+    "posttags": "['阿里云']",
+    "like_count": 0,
+    "collect_count": 0,
+    "comment_count": 0,
+    "is_like": false,
+    "is_collect": false
+}
+```
+<img src="/png/success_post_post.png" alt="成功发布post图片"/>
+
+#### 失败响应
+
+| 字段名      | 类型    | 描述             |
+|-------------|-------|------------------|
+| 错误信息      | array | 错误信息         |
+
+**示例：**
+
+```json
+{
+    "postcontent": [
+        "该字段是必填项。"
+    ],
+    "postimages": [
+        "该字段是必填项。"
+    ]
+}
+```
+
+<img src="/png/fail_post_post.png" alt="失败发布post图片"/>
+
+---
+
+
+
+

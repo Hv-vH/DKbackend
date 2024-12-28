@@ -61,7 +61,7 @@ class CollectPost(models.Model):
 class Article(models.Model):
     #作者id,外键关联到UserProfile表
     authorid = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    #文章标题,不���为空
+    #文章标题,不能为空
     articletitle = models.CharField(max_length=50,blank=False)
     #文章所属的标签
     articletags = models.TextField()
