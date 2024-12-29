@@ -14,10 +14,10 @@
 
 ### 请求参数
 
-| 参数名      | 类型    | 必填  | 描述             |
-|-------------|---------|-------|------------------|
-| username    | string  | 是    | 用户名           |
-| password    | string  | 是    | 密码             |
+| 参数名      | 类型     | 必填 | 描述  |
+|----------|--------|----|-----|
+| username | string | 是  | 用户名 |
+| password | string | 是  | 密码  |
 
 ### 请求示例
 
@@ -32,17 +32,17 @@
 
 #### 成功响应
 
-| 字段名      | 类型    | 描述             |
-|-------------|---------|------------------|
-| token       | string  | 登录成功后的令牌 |
-| user        | object  | 用户信息         |
-| user.id     | integer | 用户信息 ID      |
-| user.username | string | 用户名         |
-| user.email  | string  | 邮箱             |
-| user.nickname | string | 昵称            |
-| user.avatar | string  | 头像             |
-| user.description | string | 个人简介      |
-| user.userid | integer | 用户 ID          |
+| 字段名              | 类型      | 描述       |
+|------------------|---------|----------|
+| token            | string  | 登录成功后的令牌 |
+| user             | object  | 用户信息     |
+| user.id          | integer | 用户信息 ID  |
+| user.username    | string  | 用户名      |
+| user.email       | string  | 邮箱       |
+| user.nickname    | string  | 昵称       |
+| user.avatar      | string  | 头像       |
+| user.description | string  | 个人简介     |
+| user.userid      | integer | 用户 ID    |
 
 **示例：**
 
@@ -65,11 +65,11 @@
 
 #### 失败响应
 
-| 字段名   | 类型     | 描述   |
-|-------|--------|------|
-| messages      | string | 错误信息 |
-| errors | object | 错误信息 |
-|具体错误信息| string | 错误信息 |
+| 字段名      | 类型     | 描述   |
+|----------|--------|------|
+| messages | string | 错误信息 |
+| errors   | object | 错误信息 |
+| 具体错误信息   | string | 错误信息 |
 
 **示例：**
 
@@ -95,10 +95,10 @@
 用于用户注册。
 
 ### 请求参数
-| 参数名      | 类型    | 必填  | 描述             |
-|-------------|---------|-------|------------------|
-| username    | string  | 是    | 用户名           |
-| password    | string  | 是    | 密码             |
+| 参数名      | 类型     | 必填 | 描述  |
+|----------|--------|----|-----|
+| username | string | 是  | 用户名 |
+| password | string | 是  | 密码  |
 
 ### 请求示例
 
@@ -113,17 +113,17 @@
 
 #### 成功响应
 
-| 字段名      | 类型    | 描述             |
-|-------------|---------|------------------|
-| token       | string  | 注册成功后的令牌 |
-| user        | object  | 用户信息         |
-| user.id     | integer | 用户信息 ID      |
-| user.username | string | 用户名         |
-| user.email  | string  | 邮箱             |
-| user.nickname | string | 昵称            |
-| user.avatar | string  | 头像             |
-| user.description | string | 个人简介      |
-| user.userid | integer | 用户 ID          |
+| 字段名              | 类型      | 描述       |
+|------------------|---------|----------|
+| token            | string  | 注册成功后的令牌 |
+| user             | object  | 用户信息     |
+| user.id          | integer | 用户信息 ID  |
+| user.username    | string  | 用户名      |
+| user.email       | string  | 邮箱       |
+| user.nickname    | string  | 昵称       |
+| user.avatar      | string  | 头像       |
+| user.description | string  | 个人简介     |
+| user.userid      | integer | 用户 ID    |
 
 **示例：**
 
@@ -145,11 +145,11 @@
 
 #### 失败响应
 
-| 字段名   | 类型     | 描述   |
-|-------|--------|------|
-| messages      | string | 错误信息 |
-| errors | object | 错误信息 |
-|具体错误信息| string | 错误信息 |
+| 字段名      | 类型     | 描述   |
+|----------|--------|------|
+| messages | string | 错误信息 |
+| errors   | object | 错误信息 |
+| 具体错误信息   | string | 错误信息 |
 
 **示例：**
 
@@ -176,9 +176,9 @@
 
 ### 请求头部
 
-| 参数名      | 类型    | 必填  | 描述                    |
-|-------------|---------|-------|-----------------------|
-| Authorization | string | 是    | `JWT <token>` 格式的认证令牌 |
+| 参数名           | 类型     | 必填 | 描述                    |
+|---------------|--------|----|-----------------------|
+| Authorization | string | 是  | `JWT <token>` 格式的认证令牌 |
 
 ### 请求示例
 
@@ -191,7 +191,7 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### 成功响应
 
-| 字段名      | 类型    | 描述      |
+| 字段名         | 类型      | 描述      |
 |-------------|---------|---------|
 | id          | integer | 用户信息 ID |
 | username    | string  | 用户名     |
@@ -218,9 +218,9 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### 失败响应
 
-| 字段名      | 类型    | 描述             |
-|-------------|---------|------------------|
-| detail      | string  | 错误信息         |
+| 字段名    | 类型     | 描述   |
+|--------|--------|------|
+| detail | string | 错误信息 |
 
 **示例：**
 
@@ -242,17 +242,17 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### 请求头部
 
-| 参数名      | 类型    | 必填  | 描述                    |
-|-------------|---------|-------|-----------------------|
-| Authorization | string | 是    | `JWT <token>` 格式的认证令牌 |
+| 参数名           | 类型     | 必填 | 描述                    |
+|---------------|--------|----|-----------------------|
+| Authorization | string | 是  | `JWT <token>` 格式的认证令牌 |
 
 ### 请求参数
 
-| 参数名      | 类型    | 必填  | 描述             |
-|-------------|---------|-------|------------------|
-|avatar|file|否|用户头像|
-|nickname|string|否|用户昵称|
-|description|string|否|用户个人简介|
+| 参数名         | 类型     | 必填 | 描述     |
+|-------------|--------|----|--------|
+| avatar      | file   | 否  | 用户头像   |
+| nickname    | string | 否  | 用户昵称   |
+| description | string | 否  | 用户个人简介 |
 
 ### 请求示例
 
@@ -267,7 +267,7 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### 成功响应
 
-| 字段名      | 类型    | 描述      |
+| 字段名         | 类型      | 描述      |
 |-------------|---------|---------|
 | id          | integer | 用户信息 ID |
 | username    | string  | 用户名     |
@@ -295,9 +295,9 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### 失败响应
 
-| 字段名      | 类型    | 描述             |
-|-------------|---------|------------------|
-| detail      | string  | 错误信息         |
+| 字段名    | 类型     | 描述   |
+|--------|--------|------|
+| detail | string | 错误信息 |
 
 **示例：**
 
@@ -397,12 +397,12 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 | Authorization | string | 是  | `JWT <token>` 格式的认证令牌 |
 
 ### 请求参数
-| 参数名      | 类型    | 必填 | 描述             |
-|-------------|---------|----|------------------|
-|posttitle|string| 是  |post标题|
-|postcontent|string| 是  |post内容|
-|postimages|file| 是  |post图片|
-|posttags|string| 是  |post标签|
+| 参数名         | 类型     | 必填 | 描述     |
+|-------------|--------|----|--------|
+| posttitle   | string | 是  | post标题 |
+| postcontent | string | 是  | post内容 |
+| postimages  | file   | 是  | post图片 |
+| posttags    | string | 是  | post标签 |
 
 
 ### 请求示例
@@ -467,9 +467,9 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### 失败响应
 
-| 字段名      | 类型    | 描述             |
-|-------------|-------|------------------|
-| 错误信息      | array | 错误信息         |
+| 字段名  | 类型    | 描述   |
+|------|-------|------|
+| 错误信息 | array | 错误信息 |
 
 **示例：**
 
@@ -487,6 +487,102 @@ Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 <img src="/png/fail_post_post.png" alt="失败发布post图片"/>
 
 ---
+## 获取评论接口
+
+### 接口地址
+`GET /acg/comment/?type=<str:type>&id=<int:id>`获取指定post类型或者article类型的评论
+
+### 功能描述
+获取post或者article的评论
+
+### 请求头部
+| 参数名           | 类型     | 必填 | 描述                    |
+|---------------|--------|----|-----------------------|
+| Authorization | string | 是  | `JWT <token>` 格式的认证令牌 |
+
+
+### 返回结果
+
+#### 成功响应
+
+| 字段名                 | 类型          | 描述            |
+|---------------------|-------------|---------------|
+| id                  | integer     | 评论 ID         |
+| userid              | integer     | 用户 ID         |
+| username            | string      | 用户名           |
+| email               | string      | 邮箱            |
+| nickname            | string      | 昵称            |
+| avatar              | string      | 头像            |
+| description         | string      | 个人简介          |
+| commenttype         | string      | 评论类型          |
+| postid              | int         | 评论的post ID    |
+| articleid           | int         | 评论的article ID |
+| commentid           | int         | 评论的评论 ID      |
+| commentcontent      | string      | 评论内容          |
+| commentcreated_time | string      | 评论创建时间        |
+| like_count          | integer     | 点赞数           |
+| is_like             | boolean     | 是否点赞          |
+| replies             | array[self] | 回复列表          |
+
+**示例：**
+
+```json
+{
+    "id": 1,
+    "userid": 3,
+    "username": "user100",
+    "email": "",
+    "nickname": "北京队",
+    "avatar": "avatars/avatar.jpg",
+    "description": "",
+    "commenttype": "post",
+    "postid": 1,
+    "articleid": null,
+    "commentid": null,
+    "commentcontent": "这个手办真的很好看",
+    "commentcreated_time": "2024-12-17T20:51:06",
+    "like_count": 3,
+    "is_like": true,
+    "replies": [
+        {
+            "id": 2,
+            "userid": 1,
+            "username": "hfdd",
+            "email": "",
+            "nickname": "测速接口名字",
+            "avatar": "测速接口头像",
+            "description": "测试接口介绍",
+            "commenttype": "post",
+            "postid": 1,
+            "articleid": null,
+            "commentid": 1,
+            "commentcontent": "谢谢你的夸奖",
+            "commentcreated_time": "2024-12-17T20:51:06",
+            "like_count": 0,
+            "is_like": false,
+            "replies": null
+        }
+    ]
+}
+```
+
+<img src="/png/success_comment.png" alt="成功获取评论图片"/>
+
+#### 失败响应
+
+| 字段名  | 类型  | 描述   |
+|------|-----|------|
+| 错误信息 | str | 错误信息 |
+
+**示例：**
+
+```json
+{
+    "message": "参数错误"
+}
+```
+
+<img src="/png/fail_comment.png" alt="失败获取评论图片"/>
 
 ## 关注接口
 
@@ -864,3 +960,105 @@ GET /user/stats/1/
   - `following_count`：关注的数量 
   - `collections_count`：收藏的数量
 
+
+
+
+
+## 发表评论接口
+
+### 接口地址
+`POST /acg/comment/`
+
+### 功能描述
+对post或者article或者评论进行评论
+
+### 请求头部
+| 参数名           | 类型     | 必填 | 描述                    |
+|---------------|--------|----|-----------------------|
+| Authorization | string | 是  | `JWT <token>` 格式的认证令牌 |
+
+### 请求参数
+| 参数名         | 类型     | 必填 | 描述     |
+|-------------|--------|----|--------|
+| commenttype | string | 是  | 评论类型   |
+| postid      | int    | 否  | 评论的post ID |
+| articleid   | int    | 否  | 评论的article ID |
+| commentid   | int    | 否  | 评论的评论 ID |
+| commentcontent | string | 是  | 评论内容 |
+
+### 请求示例
+
+```json
+{
+    "commenttype": "post",
+    "postid": 1,
+    "commentcontent": "这个手办真的很好看"
+}
+```
+
+### 返回结果
+
+#### 成功响应
+
+| 字段名                 | 类型          | 描述            |
+|---------------------|-------------|---------------|
+| id                  | integer     | 评论 ID         |
+| userid              | integer     | 用户 ID         |
+| username            | string      | 用户名           |
+| email               | string      | 邮箱            |
+| nickname            | string      | 昵称            |
+| avatar              | string      | 头像            |
+| description         | string      | 个人简介          |
+| ｜ postid            | int         | 评论的post ID    |
+| articleid           | int         | 评论的article ID |
+| commentid           | int         | 评论的评论 ID      |
+| ｜commentcontent     | string      | 评论内容          |
+| commentcreated_time | string      | 评论创建时间        |
+| ｜like_count         | integer     | 点赞数           |
+| is_like             | boolean     | 是否点赞          |
+| replies             | array[self] | 回复列表          |
+
+**示例：**
+
+```json
+{
+    "id": 1,
+    "userid": 3,
+    "username": "user100",
+    "email": "",
+    "nickname": "北京队",
+    "avatar": "avatars/avatar.jpg",
+    "description": "",
+    "commenttype": "post",
+    "postid": 1,
+    "articleid": null,
+    "commentid": null,
+    "commentcontent": "这个手办真的很好看",
+    "commentcreated_time": "2024-12-17T20:51:06",
+    "like_count": 3,
+    "is_like": true,
+    "replies": null
+}
+```
+
+<img src="/png/success_post_comment.png" alt="成功评论图片"/>
+
+#### 失败响应
+
+| 字段名  | 类型  | 描述   |
+|------|-----|------|
+| 错误信息 | str | 错误信息 |
+
+**示例：**
+
+```json
+{
+    "non_field_errors": [
+        "commentid不为空时，commenttype必须为comment"
+    ]
+}
+```
+
+<img src="/png/fail_post_comment.png" alt="失败评论图片"/>
+
+---

@@ -341,17 +341,24 @@ class CommentView(APIView):
             if not post_id:
                 return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
             comments = Comment.objects.filter(commenttype='post',postid=post_id)
-            serializer = CommentSerializer(comments,many=True)
+            serializer = CommentSerializer(comments,many=True,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
         elif comment_type == 'article':
             article_id = request.query_params.get('id',None)
             if not article_id:
                 return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
             comments = Comment.objects.filter(commenttype='article',articleid=article_id)
-            serializer = CommentSerializer(comments,many=True)
+            serializer = CommentSerializer(comments,many=True,context={'request':request})
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             return Response({'message':'参数错误'},status=status.HTTP_400_BAD_REQUEST)
+    def post(self,request):
+        serializer = CommentSerializer(data=request.data,context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class LikePostView(APIView):
     def post(self, request, post_id):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile,Post,LikePost,CollectPost,Comment,Article,Topic,Follow, Message
+from .models import UserProfile,Post,LikePost,CollectPost,Comment,Article,Topic,Follow, Message, LikeComment
 import ast
 
 #创建登录序列化器
@@ -108,13 +108,13 @@ class PostSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request.user.is_authenticated:
             return False
-        return LikePost.objects.filter(liker=request.user.userprofile,post=obj).exists()
+        return LikePost.objects.filter(liker=request.user.id,post=obj).exists()
 
     def get_is_collect(self,obj):
         request = self.context.get('request')
         if not request.user.is_authenticated:
             return False
-        return CollectPost.objects.filter(collector=request.user.userprofile,post=obj).exists()
+        return CollectPost.objects.filter(collector=request.user.id,post=obj).exists()
 
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
@@ -158,13 +158,16 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     #包含UserProfile和User的字段
-    userid = serializers.IntegerField(source='commentauthor.userid.id')
-    username = serializers.CharField(source='commentauthor.userid.username')
-    email = serializers.CharField(source='commentauthor.userid.email')
-    nickname = serializers.CharField(source='commentauthor.nickname')
-    avatar = serializers.CharField(source='commentauthor.avatar')
-    description = serializers.CharField(source='commentauthor.description')
-
+    userid = serializers.IntegerField(source='commentauthor.userid.id',read_only=True)
+    username = serializers.CharField(source='commentauthor.userid.username',read_only=True)
+    email = serializers.CharField(source='commentauthor.userid.email',read_only=True)
+    nickname = serializers.CharField(source='commentauthor.nickname',read_only=True)
+    avatar = serializers.CharField(source='commentauthor.avatar',read_only=True)
+    description = serializers.CharField(source='commentauthor.description',read_only=True)
+    #点赞数
+    like_count = serializers.SerializerMethodField()
+    #是否点赞
+    is_like = serializers.SerializerMethodField()
     #嵌套的评论
     replies = serializers.SerializerMethodField()
 
@@ -173,8 +176,31 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'userid','username','email','nickname','avatar','description',
                   'commenttype','postid','articleid','commentid','commentcontent','comment_time',
+                  'like_count','is_like',
                   'replies',
                   ]
+
+    def validate(self, attrs):
+        commenttype = attrs.get('commenttype')
+        postid = attrs.get('postid')
+        articleid = attrs.get('articleid')
+        commentid = attrs.get('commentid')
+
+        #判断postid、articleid有且只有一个，commentid在子评论时会有
+        if not (postid or articleid):
+            raise serializers.ValidationError('postid和articleid不能同时为空')
+        #如果是对评论的评论，那么commenttype一定为comment
+        if commentid:
+            if commenttype != 'comment':
+                raise serializers.ValidationError('commentid不为空时，commenttype必须为comment')
+        return attrs
+
+    def create(self, validated_data):
+        #从请求中获取用户ID
+        commentauthor = self.context.get('request').user.id
+        #创建评论
+        comment = Comment.objects.create(commentauthor_id=commentauthor,**validated_data)
+        return comment
 
     #实现嵌套的评论
     def get_replies(self,obj):
@@ -182,6 +208,13 @@ class CommentSerializer(serializers.ModelSerializer):
         replies = Comment.objects.filter(commentid=obj)
         #
         if replies.exists():
-            return CommentSerializer(replies,many=True).data
+            return CommentSerializer(replies,many=True,context=self.context).data
         else:
             return None
+
+    def get_like_count(self,obj):
+        return LikeComment.objects.filter(comment=obj).count()
+
+    def get_is_like(self,obj):
+        request = self.context.get('request')
+        return LikeComment.objects.filter(liker=request.user.id,comment=obj).exists()
