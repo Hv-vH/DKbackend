@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (LoginView,RegisterView,TestView,UserProfileView,PostView,
                     FollowView,TopicView,
                     CommentView,MessageView, UnreadMessageCountView,LikePostView,
-                    LikeArticleView, LikeCommentView,PostCollectionView,ArticleCollectionView)
+                    LikeArticleView, LikeCommentView,PostCollectionView,ArticleCollectionView,
+                    get_user_stats)
 
 
 urlpatterns = [
@@ -35,6 +36,7 @@ urlpatterns = [
     path('posts/<int:post_id>/uncollect/', PostCollectionView.as_view(), name='uncollect-post'),  # 取消收藏帖子
     path('articles/<int:article_id>/collect/', ArticleCollectionView.as_view(), name='collect-article'),  # 收藏文章
     path('articles/<int:article_id>/uncollect/', ArticleCollectionView.as_view(), name='uncollect-article'),  # 取消收藏文章
+    path('user/stats/<int:user_id>/', get_user_stats, name='user_stats'),
 ]
 
 

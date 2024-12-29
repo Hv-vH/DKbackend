@@ -358,7 +358,7 @@ class LikePostView(APIView):
         user_id = request.user.id  # 获取当前用户的 ID
         try:
             post = Post.objects.get(id=post_id)
-            like, created = LikePost.objects.get_or_create(liker=user_profile, post=post)
+            like, created = LikePost.objects.get_or_create(liker=user_id, post=post)
 
             if created:
                 return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
@@ -373,7 +373,7 @@ class LikeArticleView(APIView):
         user_id = request.user.id  # 获取当前用户的 ID
         try:
             article = Article.objects.get(id=article_id)
-            like, created = LikeArticle.objects.get_or_create(liker=user_profile, article=article)
+            like, created = LikeArticle.objects.get_or_create(liker=user_id, article=article)
 
             if created:
                 return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
@@ -388,7 +388,7 @@ class LikeCommentView(APIView):
         user_id = request.user.id  # 获取当前用户的 ID
         try:
             comment = Comment.objects.get(id=comment_id)
-            like, created = LikeComment.objects.get_or_create(liker=user_profile, comment=comment)
+            like, created = LikeComment.objects.get_or_create(liker=user_id, comment=comment)
 
             if created:
                 return Response({'detail': '点赞成功'}, status=status.HTTP_201_CREATED)
@@ -455,3 +455,20 @@ class ArticleCollectionView(APIView):
             return Response({'detail': '您尚未收藏此文章'}, status=status.HTTP_400_BAD_REQUEST)
         except Article.DoesNotExist:
             return Response({'detail': '文章未找到'}, status=status.HTTP_404_NOT_FOUND)
+
+def get_user_stats(request, user_id):
+    # 获取用户实例
+    user = get_object_or_404(User, id=user_id)
+
+    # 查询被关注数量
+    followers_count = Follow.objects.filter(followed=user).count()  # 被关注数量
+    # 查询关注数量
+    following_count = Follow.objects.filter(follower=user).count()  # 关注数量
+    # 查询收藏数量
+    collections_count = CollectArticle.objects.filter(collector=user).count()  # 收藏数量
+    # 返回 JSON 响应
+    return Response({
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'collections_count': collections_count,
+    })
