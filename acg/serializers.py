@@ -117,6 +117,7 @@ class PostSerializer(serializers.ModelSerializer):
         return CollectPost.objects.filter(collector=request.user.id,post=obj).exists()
 
 class FollowSerializer(serializers.ModelSerializer):
+    followed = UserProfileSerializer()  # 嵌入用户序列化器
     class Meta:
         model = Follow
         fields = ['follower', 'followed']

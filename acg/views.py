@@ -479,3 +479,37 @@ def get_user_stats(request, user_id):
         'following_count': following_count,
         'collections_count': collections_count,
     })
+
+#收藏列表
+class CollectionListView(APIView):
+    def get(self, request):
+        user_id = request.user.id  # 获取当前用户的 ID
+
+        # 获取用户收藏的动态
+        collected_posts = CollectPost.objects.filter(collector_id=user_id).select_related('post')
+        post_list = [
+            {
+                'id': collect.post.id,
+                'title': collect.post.title,
+                'collect_time': collect.collect_time
+            }
+            for collect in collected_posts
+        ]
+
+        # 获取用户收藏的文章
+        collected_articles = CollectArticle.objects.filter(collector_id=user_id).select_related('article')
+        article_list = [
+            {
+                'id': collect.article.id,
+                'title': collect.article.title,
+                'collect_time': collect.collect_time
+            }
+            for collect in collected_articles
+        ]
+
+        return Response({
+            'collected_posts': post_list,
+            'collected_articles': article_list
+        }, status=status.HTTP_200_OK)
+
+
