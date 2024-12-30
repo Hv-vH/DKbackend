@@ -85,6 +85,8 @@ class PostView(APIView):
             search_query = request.query_params.get('search', None)
             #还需要判断是否有category关键字
             category_query = request.query_params.get('category', None)
+            #还需要判断是否有owner关键字
+            owner_query = request.query_params.get('owner', None)
             if search_query:
                 #从动态标题和动态内容中搜索
                 posts = Post.objects.filter(
@@ -98,6 +100,11 @@ class PostView(APIView):
                 #从动态标签中搜索
                 posts = Post.objects.filter(posttags__icontains=category_query)
                 #可能没有对应的数据
+                if not posts:
+                    return Response({'message':'没有找到对应的动态'},status=status.HTTP_404_NOT_FOUND)
+            elif owner_query:
+                #从userid中搜索
+                posts = Post.objects.filter(authorid__userid__id=owner_query)
                 if not posts:
                     return Response({'message':'没有找到对应的动态'},status=status.HTTP_404_NOT_FOUND)
             else:
